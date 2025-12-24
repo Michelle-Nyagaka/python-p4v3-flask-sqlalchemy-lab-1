@@ -22,6 +22,50 @@ def index():
 
 # Add views here
 
+#Get earthquake by ID
+@app.route('/earthquakes/<int:id>')
+def earthquake_by_id(id):
+    quake = Earthquake.query.filter_by(id=id).first()
+
+    if not quake:
+        return make_response(
+            {"message": f"Earthquake {id} not found."},
+            404
+        )
+
+    return make_response(
+        {
+            "id": quake.id,
+            "location": quake.location,
+            "magnitude": quake.magnitude,
+            "year": quake.year
+        },
+        200
+    )
+
+#Get earthquakes by minimum magnitude
+@app.route('/earthquakes/magnitude/<float:magnitude>')
+def earthquakes_by_magnitude(magnitude):
+    quakes = Earthquake.query.filter(
+        Earthquake.magnitude >= magnitude
+    ).all()
+
+    return make_response(
+        {
+            "count": len(quakes),
+            "quakes": [
+                {
+                    "id": quake.id,
+                    "location": quake.location,
+                    "magnitude": quake.magnitude,
+                    "year": quake.year
+                }
+                for quake in quakes
+            ]
+        },
+        200
+    )
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
